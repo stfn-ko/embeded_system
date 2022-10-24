@@ -55,7 +55,7 @@ int E2_MEM::Write(uint16_t _addr, const char* _buffer){
     _buffer_size -= max_rec_size_B;
     _addr++;
     _it++;
-  } while(_buffer_size >= this->max_rec_size_B);
+  } while(_buffer_size > 0);
 }
 
 /*\ ---------------------------------------------
