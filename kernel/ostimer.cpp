@@ -9,9 +9,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "ostimer.h"
-#include "Arduino.h"
 
-namespace Kernel {
+namespace Kernel
+{
 
 	//
 	// NBT class
@@ -25,9 +25,9 @@ namespace Kernel {
 	///
 	////////////////////////////////////////////////////////////////////////
 
-	OSTimer::OSTimer(unsigned long timeout=0) : time(timeout), freeze(0), frozen(0)
+	OSTimer::OSTimer(unsigned long timeout = 0) : time(timeout), freeze(0), frozen(0)
 	{
-		tmr=millis();
+		tmr = millis();
 	}
 
 	////////////////////////////////////////////////////////////////////////
@@ -58,8 +58,8 @@ namespace Kernel {
 
 	void OSTimer::Set(unsigned long timeout)
 	{
-		time=timeout;
-		tmr=millis();
+		time = timeout;
+		tmr = millis();
 	}
 
 	////////////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ namespace Kernel {
 
 	void OSTimer::Restart()
 	{
-		tmr=millis();
+		tmr = millis();
 	}
 
 	////////////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ namespace Kernel {
 
 	int OSTimer::isExpired(void)
 	{
-		return ((millis()-tmr)> time);
+		return ((millis() - tmr) > time);
 	}
 
 	////////////////////////////////////////////////////////////////////////
@@ -112,8 +112,8 @@ namespace Kernel {
 
 	void OSTimer::Freeze(void)
 	{
-		freeze=millis();
-		frozen=1;
+		freeze = millis();
+		frozen = 1;
 	}
 
 	////////////////////////////////////////////////////////////////////////
@@ -130,8 +130,7 @@ namespace Kernel {
 
 	void OSTimer::Thaw(void)
 	{
-		tmr+=(frozen)?(millis()-freeze):0;
+		tmr += (frozen) ? (millis() - freeze) : 0;
 	}
 
 }
-

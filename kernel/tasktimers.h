@@ -10,7 +10,8 @@
 #ifndef TASKTIMERS_H_
 #define TASKTIMERS_H_
 
-namespace Kernel {
+namespace Kernel
+{
 
 	//
 	// These functions are described as a series of macros that allow easy instantiation
@@ -30,9 +31,9 @@ namespace Kernel {
 	///
 	///////////////////////////////////////////////////////////////////////////////
 
-	#define CREATE_TIMER(t,init) \
-		static unsigned long tmr##t=0,time##t=init,freeze##t=0; \
-		static unsigned char frozen##t=0;
+#define CREATE_TIMER(t, init)                                       \
+	static unsigned long tmr##t = 0, time##t = init, freeze##t = 0; \
+	static unsigned char frozen##t = 0;
 
 	///////////////////////////////////////////////////////////////////////////////
 	/// SETTIMER
@@ -46,10 +47,10 @@ namespace Kernel {
 	///
 	///////////////////////////////////////////////////////////////////////////////
 
-	#define SETTIMER(t,tm) \
+#define SETTIMER(t, tm)    \
 	{                      \
-		tmr##t=millis();   \
-		time##t=tm;        \
+		tmr##t = millis(); \
+		time##t = tm;      \
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -63,8 +64,8 @@ namespace Kernel {
 	///
 	///////////////////////////////////////////////////////////////////////////////
 
-	#define ISEXPIRED(t) \
-		((millis()-tmr##t)> time##t)
+#define ISEXPIRED(t) \
+	((millis() - tmr##t) > time##t)
 
 	///////////////////////////////////////////////////////////////////////////////
 	/// FREEZETIMER
@@ -77,10 +78,10 @@ namespace Kernel {
 	///
 	//////////////////////////////////////////////////////////////////////////////
 
-	#define FREEZETIMER(t) \
-	{   	                   \
-		freeze##t=millis();\
-		frozen##t=TRUE;    \
+#define FREEZETIMER(t)        \
+	{                         \
+		freeze##t = millis(); \
+		frozen##t = TRUE;     \
 	}
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -94,12 +95,11 @@ namespace Kernel {
 	///
 	/////////////////////////////////////////////////////////////////////////////
 
-	#define THAWTIMER(t)  \
-	{                     \
-		tmr##t+=(frozen##t)?(millis()-freeze##t):0; \
+#define THAWTIMER(t)                                        \
+	{                                                       \
+		tmr##t += (frozen##t) ? (millis() - freeze##t) : 0; \
 	}
 
 }
 
 #endif
-

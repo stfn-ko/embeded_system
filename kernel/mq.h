@@ -14,7 +14,6 @@
 #define _MQ_H_
 
 #include "sysincs.h"
-#include "EventReceiver.h"
 
 namespace Kernel {
 

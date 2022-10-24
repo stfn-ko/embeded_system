@@ -8,58 +8,63 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "taskring.h"
-#include <stdlib.h>
 
-#define TR_TASKTYPE_FCTN	0
-#define TR_TASKTYPE_CLASS	1
+#define TR_TASKTYPE_FCTN 0
+#define TR_TASKTYPE_CLASS 1
 
 //
 // task ring internals
 
-namespace Kernel {
+namespace Kernel
+{
 
 	// Task state structure
 
-	typedef class TASKSTATE * 	PTASKSTATE;
-	class TASKSTATE {
-		public:
-			void *				handler;
-			uint8_t				type;
-			union {
-				PFNTASKHANDLER		fHandler;
-			} pointers;
-			void *				context;
-			PTASKSTATE			pNext;
-			TASKSTATE() : pNext(NULL) {};
-			virtual ~TASKSTATE() {};
-			virtual void Call()=0;
+	typedef class TASKSTATE *PTASKSTATE;
+	class TASKSTATE
+	{
+	public:
+		void *handler;
+		uint8_t type;
+		union
+		{
+			PFNTASKHANDLER fHandler;
+		} pointers;
+		void *context;
+		PTASKSTATE pNext;
+		TASKSTATE() : pNext(NULL){};
+		virtual ~TASKSTATE(){};
+		virtual void Call() = 0;
 	};
 
-	typedef class TASKSTATE_C	PTASKSTATE_C;
-	class TASKSTATE_C : public TASKSTATE {
-		public:
-			Task *				Handler;
-			TASKSTATE_C(Task * handler) : Handler(handler) {};
-			void Call() { Handler->TaskLoop(); };
+	typedef class TASKSTATE_C PTASKSTATE_C;
+	class TASKSTATE_C : public TASKSTATE
+	{
+	public:
+		Task *Handler;
+		TASKSTATE_C(Task *handler) : Handler(handler){};
+		void Call() { Handler->TaskLoop(); };
 	};
 
-	typedef class TASKSTATE_F	PTASKSTATE_F;
-	class TASKSTATE_F : public TASKSTATE {
-		public:
-			PFNTASKHANDLER	Handler;
-			void *			context;
-			TASKSTATE_F(PFNTASKHANDLER handler, void * context) : Handler(handler),context(context) {};
-			void Call() { Handler(context); };
+	typedef class TASKSTATE_F PTASKSTATE_F;
+	class TASKSTATE_F : public TASKSTATE
+	{
+	public:
+		PFNTASKHANDLER Handler;
+		void *context;
+		TASKSTATE_F(PFNTASKHANDLER handler, void *context) : Handler(handler), context(context){};
+		void Call() { Handler(context); };
 	};
 
 	// Task internal structure
 
-	typedef class TASKINTERNALS *	PTASKINTERNALS;
-	class TASKINTERNALS {
-		public:
-			PTASKSTATE	pHead;
-			PTASKSTATE	pCur;
-			TASKINTERNALS() : pHead(NULL),pCur(NULL) {};
+	typedef class TASKINTERNALS *PTASKINTERNALS;
+	class TASKINTERNALS
+	{
+	public:
+		PTASKSTATE pHead;
+		PTASKSTATE pCur;
+		TASKINTERNALS() : pHead(NULL), pCur(NULL){};
 	};
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -79,7 +84,7 @@ namespace Kernel {
 
 	TaskRing::TaskRing(void)
 	{
-		this->internals=new TASKINTERNALS;
+		this->internals = new TASKINTERNALS;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -94,7 +99,7 @@ namespace Kernel {
 	///
 	//////////////////////////////////////////////////////////////////////////////
 
-	static TaskRing& TaskRing::Get(void)
+	static TaskRing &TaskRing::Get(void)
 	{
 		static TaskRing tr;
 		return tr;
@@ -113,15 +118,17 @@ namespace Kernel {
 
 	void TaskRing::Loop(void)
 	{
-		PTASKINTERNALS internal=(PTASKINTERNALS)(this->internals);
+		PTASKINTERNALS internal = (PTASKINTERNALS)(this->internals);
 
-		if(internal->pCur==NULL) {
-			internal->pCur=internal->pHead;
+		if (internal->pCur == NULL)
+		{
+			internal->pCur = internal->pHead;
 		}
 
-		if(internal->pCur) {
-			internal->pCur->Call();					// dispatch to the task handler
-			internal->pCur=internal->pCur->pNext;
+		if (internal->pCur)
+		{
+			internal->pCur->Call(); // dispatch to the task handler
+			internal->pCur = internal->pCur->pNext;
 		}
 	}
 
@@ -141,16 +148,18 @@ namespace Kernel {
 	///
 	///////////////////////////////////////////////////////////////////////////////
 
-	int TaskRing::RegisterTaskHandler(PFNTASKHANDLER handler, void * context)
+	int TaskRing::RegisterTaskHandler(PFNTASKHANDLER handler, void *context)
 	{
-		int rc=-1;
-		if(handler) {
-			PTASKSTATE pNew = new TASKSTATE_F((void *)handler,context);
-			PTASKINTERNALS internal=(PTASKINTERNALS)(this->internals);
-			if(pNew) {
-				pNew->pNext=internal->pHead;
-				internal->pHead=pNew;
-				rc=0;
+		int rc = -1;
+		if (handler)
+		{
+			PTASKSTATE pNew = new TASKSTATE_F((void *)handler, context);
+			PTASKINTERNALS internal = (PTASKINTERNALS)(this->internals);
+			if (pNew)
+			{
+				pNew->pNext = internal->pHead;
+				internal->pHead = pNew;
+				rc = 0;
 			}
 		}
 		return rc;
@@ -169,16 +178,18 @@ namespace Kernel {
 	///
 	///////////////////////////////////////////////////////////////////////////////
 
-	int TaskRing::RegisterTaskHandler(Task * task)
+	int TaskRing::RegisterTaskHandler(Task *task)
 	{
-		int rc=-1;
-		if(task) {
+		int rc = -1;
+		if (task)
+		{
 			PTASKSTATE pNew = new TASKSTATE_C(task);
-			PTASKINTERNALS internal=(PTASKINTERNALS)(this->internals);
-			if(pNew) {
-				pNew->pNext=internal->pHead;
-				internal->pHead=pNew;
-				rc=0;
+			PTASKINTERNALS internal = (PTASKINTERNALS)(this->internals);
+			if (pNew)
+			{
+				pNew->pNext = internal->pHead;
+				internal->pHead = pNew;
+				rc = 0;
 			}
 		}
 		return rc;
@@ -192,9 +203,8 @@ namespace Kernel {
 	///
 	///////////////////////////////////////////////////////////////////////////////
 
-	int TaskRing::DeregisterTaskHandler(Task * task)
+	int TaskRing::DeregisterTaskHandler(Task *task)
 	{
-
 	}
 
 }

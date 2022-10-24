@@ -10,9 +10,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "mq.h"
-#include "EventReceiver.h"
-#include "interrupts.h"
-#include <stdlib.h>
 
 namespace Kernel {
 

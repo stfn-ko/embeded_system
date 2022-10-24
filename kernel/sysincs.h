@@ -11,7 +11,10 @@
 #define _SYSINCS_H_
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <Arduino.h>
+#include "interrupts.h"
+#include "EventReceiver.h"
 
 // Boolean type
 

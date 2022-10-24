@@ -1,6 +1,4 @@
 #include "kernel.h"
-#include "mq.h"
-#include "iic.h"
 
 namespace Kernel {
 	Kernel::KernelClass OS;
