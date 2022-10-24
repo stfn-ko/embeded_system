@@ -18,25 +18,44 @@ E2_MEM::E2_MEM(uint8_t _port_addr, int _mrs){
 }
 
 /*\ ---------------------------------------------
+|*| @name: sizeof_cchp
+|*| @description: 
+\*/
+uint16_t E2_MEM::sizeof_cchp(const cahr* _pch){
+    uint16_t _it = 0;
+    while (_pch[_it] != '\0') _it++;
+    return _it;
+}
+
+/*\ ---------------------------------------------
 |*| @name: Write
 |*| @description: 
 \*/
-int E2_MEM::Write(uint16_t _addr, const unsigned char* _buffer){
+int E2_MEM::Write(uint16_t _addr, const char* _buffer){
   struct pagewrite{
     unsigned char addr[2];
     unsigned char data[128];
   }wr;
-   
+  
+  auto _buffer_size = sizeof_cchp(_buffer);
+  int _it = 0;
+  
+  //check if address is empty, then write --> output address location
+  // else : skip to empty address --> output address location
+  
+  do{
   wr.addr[0] = (_addr >> 8) & 0xFF;
   wr.addr[1] =  _addr & 0x0FF;
 
-  for(int i = 0; i < this->_max_rec_size_; i++)
-    wr.data[i] = _buffer[i];
+  for(int i = 0; i < this->max_rec_size_B; i++)
+     wr.data[i] = _buffer[i + (this->max_rec_size_B * _it)];
 
-   //what if buffer size is more than 128 bytes? what then?
-   // maybe : add extra_write() function to append it?
+   Kernel::OS.IICDriver.IICWrite(_IIC_E2_ADDR_, (unsigned char *)&wr, this->_max_rec_size_ + 2);
    
-  Kernel::OS.IICDriver.IICWrite(_IIC_E2_ADDR_, (unsigned char *)&wr, this->_max_rec_size_ + 2);
+    _buffer_size -= max_rec_size_B;
+    _addr++;
+    _it++;
+  } while(_buffer_size >= this->max_rec_size_B);
 }
 
 /*\ ---------------------------------------------
