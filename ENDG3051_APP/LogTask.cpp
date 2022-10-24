@@ -149,8 +149,8 @@ void LogTask::LogToSerial(char * message)
   // read date from RTC
   iicregs[0]=0x00; // RTCSEC register address
   iicregs[1]=0;
-  int rcwr=Kernel::OS.IICDriver.IICWrite(IIC_ADDR_RTC,iicregs,1); // write the address.
-  int rcrd=Kernel::OS.IICDriver.IICRead(IIC_ADDR_RTC,(unsigned char *)&date,sizeof(RTCDATEREGS)); // read the values
+  Kernel::OS.IICDriver.IICWrite(IIC_ADDR_RTC,iicregs,1); // write the address.
+  Kernel::OS.IICDriver.IICRead(IIC_ADDR_RTC,(unsigned char *)&date,sizeof(RTCDATEREGS)); // read the values
 
   // now massage to convert from BCD to decimal and write to a string
 
