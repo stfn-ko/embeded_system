@@ -18,15 +18,16 @@
 class E2_MEM { 
   
   static uint8_t _IIC_E2_ADDR_;
-  static int _max_rec_size_; //max record size in bytes ()
+  uint16_t sizeof_cchp(const char* _pch);
+  static uint16_t  max_rec_size_B; //max record size in bytes ()
 	
-	public:
+public:
  
-	E2_MEM(uint8_t _port_addr = 0, int _mrs = 128); //init slave eeprom's address //doesnt have unique value check (may crush on the bus);
+  E2_MEM(uint8_t _port_addr = 0, int _mrsB = 16); //init slave eeprom's address //doesnt have unique value check (may crush on the bus);
 
-  int Write(uint16_t _addr, const unsigned char* _buffer);
+  int Write(uint16_t _addr, const char* _buffer);
   
-  int Read(uint16_t _addr, unsigned char* _buffer);
+  int Read(uint16_t _addr);
 		
 };
 
