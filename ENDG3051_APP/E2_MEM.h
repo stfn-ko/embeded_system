@@ -17,17 +17,20 @@
 
 class E2_MEM { 
   
-  static uint8_t _IIC_E2_ADDR_;
+  struct page_rw;
+  uint8_t _IIC_E2_ADDR_;
   uint16_t sizeof_cchp(const char* _pch);
-  static uint16_t  max_rec_size_B; //max record size in bytes ()
+  uint16_t  max_rec_size_B; //max record size in bytes ()
 	
 public:
  
   E2_MEM(uint8_t _port_addr = 0, int _mrsB = 16); //init slave eeprom's address //doesnt have unique value check (may crush on the bus);
-
-  int Write(uint16_t _addr, const char* _buffer);
+  ~E2_MEM(){};
   
-  int Read(uint16_t _addr);
+  int Write(uint16_t _addr, const char* _data);
+  
+   int Read(uint16_t _addr,  uint16_t _data_size);
+   int Read(struct page_rw* r) // takes &w
 		
 };
 
