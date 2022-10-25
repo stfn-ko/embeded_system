@@ -14,7 +14,7 @@
 E2_MEM::E2_MEM(uint8_t _port_addr, uint8_t _mrsB)
 {
   this->_IIC_E2_ADDR_ = 0xA0 | _port_addr << 1; // control bit + port address
-  this->_max_rec_size_ = _mrsB;
+  this->max_rec_size_B = _mrsB;
   Kernel::OS.IICDriver.IICWrite(_IIC_E2_ADDR_, 0x0, 1); // write address
 }
 

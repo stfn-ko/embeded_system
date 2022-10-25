@@ -30,7 +30,7 @@ public:
   int Write(uint16_t _addr, const char *_data);
 
   int Read(uint16_t _addr, uint8_t _data_size);
-  int Read(struct page_rw *_read) // instant read / takes &w
+  int Read(struct page_rw *_read); // instant read / takes &w
 };
 
 #endif
