@@ -82,4 +82,7 @@ int E2_MEM::Read(uint16_t _addr, uint8_t _data_size)
   return 0;
 }
 
-int E2_MEM::Read(struct page_rw *_read) {}
+int E2_MEM::Read(struct page_rw *_read)
+{
+  return 0;
+}

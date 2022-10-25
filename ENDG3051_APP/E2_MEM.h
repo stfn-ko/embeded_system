@@ -21,10 +21,10 @@ class E2_MEM
   struct page_rw;
   uint8_t _IIC_E2_ADDR_;
   uint8_t sizeof_cchp(const char *_pch);
-  uint8_t max_rec_size_B; // max record size in bytes / max 64B
+  uint8_t max_rec_size_B; // max record size in bytes / max 256B
 
 public:
-  E2_MEM(uint8_t _port_addr = 0, uint8_t _mrsB = 16); // init slave eeprom's address //doesnt have unique value check (may crush on the bus);
+  E2_MEM(uint8_t _port_addr = 0, uint8_t _mrsB = 128); // init slave eeprom's address //doesnt have unique value check (may crush on the bus);
   ~E2_MEM(){};
 
   int Write(uint16_t _addr, const char *_data);
