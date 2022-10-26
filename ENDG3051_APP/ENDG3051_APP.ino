@@ -8,7 +8,7 @@
 \*/
 #include "ToggleLED.h"
 #include "LogTask.h"
-#include "E2_MEM.h"
+#include "LogData.h"
 
 ToggleLED* Red = new ToggleLED(500, 0b00100000);
 ToggleLED* Green = new ToggleLED(300, 0b00001000);
@@ -29,6 +29,6 @@ void UserInit()
   Green->Start();
   Amber->Start();
 
-  Logger.SetDate(5,6,9,22,20,58,00,true,false);
+  Logger.SetDate(5,6,9,22,20,58,0,true,false);
   Logger.Start();
 }
