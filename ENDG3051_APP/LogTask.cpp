@@ -5,21 +5,13 @@
 
 #include "LogTask.h"
 
-#define IIC_ADDR_RTC 0xDE
-
 typedef struct _RTCDATEREGS
 {
-
-  uint8_t sec;
-  uint8_t min;
-  uint8_t hour;
-  uint8_t wkday;
-  uint8_t date;
-  uint8_t month;
-  uint8_t year;
-
+  uint8_t sec, min, hour, wkday, date, month, year;
 } RTCDATEREGS;
+
 typedef RTCDATEREGS *PRTCDATEREGS;
+
 /*\ ---------------------------------------------
 |*| @name: LogTask
 |*| @description: Constructor. This is called automatically when an instance of the
@@ -46,7 +38,7 @@ LogTask::LogTask(int _timestamp) : tm(_timestamp)
 |*| @return: 0 success, nonzero error
 \*/
 
-int LogTask::SetDate(int dow, int day, int month, int year, int hrs, int mins, int secs, boolean is24hr, boolean ampm)
+int LogTask::SetDate(int dow, int day, int month, int year, int hrs, int mins, int secs, bool is24hr, bool ampm)
 {
   struct _iicdrwrite
   {
@@ -54,7 +46,6 @@ int LogTask::SetDate(int dow, int day, int month, int year, int hrs, int mins, i
     RTCDATEREGS regs;
   } date;
 
-  int rc = 1;
   // we must first error-check our input.
   const int maxmonthdays[12] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
@@ -85,27 +76,27 @@ int LogTask::SetDate(int dow, int day, int month, int year, int hrs, int mins, i
       break;
 
     date.address = 0;
-    date.regs.sec = ((secs % 10) | ((secs / 10) << 4)) | 0x80; // check
-    date.regs.min = ((mins % 10) | ((mins / 10) << 4)) | 0x80; // check
+    date.regs.sec = bitshift_bcd(secs) | 0x80; // check
+    date.regs.min = bitshift_bcd(mins) | 0x80; // check
 
     if (is24hr)
-      date.regs.hour = ((hrs % 10) | ((hrs / 10) << 4)); // 24 format check
+      date.regs.hour = bitshift_bcd(hrs); // 24 format check
     else if (ampm)
-      date.regs.hour = ((hrs % 10) | ((hrs / 10) << 4)) | 0x40; // 12 format am check
+      date.regs.hour = bitshift_bcd(hrs) | 0x40; // 12 format am check
     else
-      date.regs.hour = ((hrs % 10) | ((hrs / 10) << 4)) | 0x60; // 12 format pm check
+      date.regs.hour = bitshift_bcd(hrs) | 0x60; // 12 format pm check
 
-    date.regs.wkday = (dow) | 0x20;                         // check
-    date.regs.date = ((day % 10) | ((day / 10) << 4));      // check
-    date.regs.month = ((month % 10) | ((month / 10) << 4)); // add leap year thing
-    date.regs.year = ((year % 10) | ((year / 10) << 4));    // check
+    date.regs.wkday = (dow) | 0x20;        // check
+    date.regs.date = bitshift_bcd(day);    // check
+    date.regs.month = bitshift_bcd(month); // add leap year thing
+    date.regs.year = bitshift_bcd(year);   // check
 
-    // Writing the date data to the RTC
-    rc = Kernel::OS.IICDriver.IICWrite(IIC_ADDR_RTC, (unsigned char *)&date, sizeof(struct _iicdrwrite)); // write the address.
-
+    return Kernel::OS.IICDriver.IICWrite(IIC_ADDR_RTC, (unsigned char *)&date, sizeof(struct _iicdrwrite)); // write the address.;
+  
   } while (0);
 
-  return rc;
+  // Writing the date data to the RTC
+  return 0;
 }
 
 /*\ ---------------------------------------------
@@ -121,7 +112,6 @@ void LogTask::TaskLoop()
 {
   if (tm.isExpired())
   {
-
     LogToSerial((char *)"log message");
 
     tm.Restart();
@@ -142,35 +132,29 @@ void LogTask::LogToSerial(char *message)
   const char *days[7] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
   char logstring[200];
-  int hours, minutes, seconds;
-  char *amIndicator;
-  char *weekday;
-  int day, month, year;
-  uint8_t iicregs[2];
+  int seconds, minutes, hours, day, month, year;
+  char *amIndicator, weekday;
+  uint8_t iicregs[2] = {0, 0};
 
-  // read date from RTC
-  iicregs[0] = 0x00; // RTCSEC register address
-  iicregs[1] = 0;
   Kernel::OS.IICDriver.IICWrite(IIC_ADDR_RTC, iicregs, 1);                                 // write the address.
   Kernel::OS.IICDriver.IICRead(IIC_ADDR_RTC, (unsigned char *)&date, sizeof(RTCDATEREGS)); // read the values
 
   // now massage to convert from BCD to decimal and write to a string
+  bool is12hr = (date.hour & 0b01000000);
+  bool ampm = (date.hour & 0b00100000);
 
-  boolean is12hr = (date.hour & 0b01000000);
-  boolean ampm = (date.hour & 0b00100000);
+  seconds = bitshift_dec(date.sec, 0x07);                      // check
+  minutes = bitshift_dec(date.min, 0x07);                      // check
+  day = bitshift_dec(date.date, 0x07);                         // check
+  weekday = const_cast<char *>(days[(date.wkday & 0x0f) - 1]); // check // edited to remove warning 'invalid conversion from 'const char*' to 'char*'
+  month = bitshift_dec(date.month, 0x07)); // check
+  year = (date.year & 0x0f) + (10 * (date.year >> 4)); // check
 
-  seconds = (date.sec & 0x0f) + (10 * ((date.sec >> 4) & 0x07));   // check
-  minutes = (date.min & 0x0f) + (10 * ((date.min >> 4) & 0x07));   // check
-  day = (date.date & 0x0f) + (10 * ((date.date >> 4) & 0x07));     // check
-  weekday = const_cast<char *>(days[(date.wkday & 0x0f) - 1]);     // check // edited to remove warning 'invalid conversion from 'const char*' to 'char*'
-  month = (date.month & 0x0f) + (10 * ((date.month >> 4) & 0x07)); // check
-  year = (date.year & 0x0f) + (10 * (date.year >> 4));             // check
-
-  hours = (date.hour & 0x0f) + (10 * ((date.hour >> 4) & 0x07));
+  hours = bitshift_dec(date.hour, 0x07);
   amIndicator = const_cast<char *>("");
   if (is12hr)
   {
-    hours = (date.hour & 0x0f) + (10 * ((date.hour >> 4) & 0x01));
+    hours = bitshift_dec(date.hour, 0x01);
     amIndicator = const_cast<char *>("pm"); // edit to_check
     if (ampm)
       amIndicator = const_cast<char *>("am"); // edit to_check
