@@ -10,11 +10,13 @@
 #include "LogTask.h"
 #include "LogData.h"
 
-ToggleLED* Red = new ToggleLED(500, 0b00100000);
-ToggleLED* Green = new ToggleLED(300, 0b00001000);
-ToggleLED* Amber = new ToggleLED(1000, 0b00010000);
+//ToggleLED* Red = new ToggleLED(500, 0b00100000);
+//ToggleLED* Green = new ToggleLED(300, 0b00001000);
+//ToggleLED* Amber = new ToggleLED(1000, 0b00010000);
 
-LogTask Logger(1000);
+//LogTask Logger(1000);
+
+LogData e2_0 = new LogData(0);
 
 /*\ ---------------------------------------------
 |*| @name: UserInit
@@ -25,10 +27,12 @@ void UserInit()
 {
 	Serial.begin(115200);
  
-	Red->Start();
-  Green->Start();
-  Amber->Start();
+	//Red->Start();
+  //Green->Start();
+  //Amber->Start();
+  //Logger.SetDate(5,6,9,22,20,58,0,true,false);
+  //Logger.Start();
 
-  Logger.SetDate(5,6,9,22,20,58,0,true,false);
-  Logger.Start();
+  e2_0->Write(0, "hello world");
+  e2_0->Read(0);
 }
