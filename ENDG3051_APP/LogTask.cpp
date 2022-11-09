@@ -1,3 +1,5 @@
+#include <kernel.h>
+
 /*\ ---------------------------------------------
 |*| @name: LOGTASK.H
 |*| @INFO: FOR CONTEXT CHECK OUT INCLUDE FILES
@@ -147,7 +149,7 @@ void LogTask::LogToSerial(char *message)
   minutes = bitshift_dec(date.min, 0x07);                      // check
   day = bitshift_dec(date.date, 0x07);                         // check
   weekday = const_cast<char *>(days[(date.wkday & 0x0f) - 1]); // check // edited to remove warning 'invalid conversion from 'const char*' to 'char*'
-  month = bitshift_dec(date.month, 0x07)); // check
+  month = bitshift_dec(date.month, 0x07); // check
   year = (date.year & 0x0f) + (10 * (date.year >> 4)); // check
 
   hours = bitshift_dec(date.hour, 0x07);
@@ -162,7 +164,7 @@ void LogTask::LogToSerial(char *message)
 
   // Using sprintf to create a string to send to the serial port.
   // Note how the message passed as a parameter to this function is appended
-  sprintf(logstring, "%s %d:%02d:%02d %s%d/%02d/%02d: %.127s\n", weekday, hours, minutes, seconds, amIndicator, day, month, year, message);
+  sprintf(logstring, "%s %d:%02d:%02d %s %d/%02d/%02d: %.127s\n", weekday, hours, minutes, seconds, amIndicator, day, month, year, message);
 
   // Isn't this approach better than having multiple Serial.write() calls!
   Serial.write(logstring);

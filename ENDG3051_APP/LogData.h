@@ -4,7 +4,8 @@
 |*| @date: 18/10/2022
 |*| @description: Derived from Task - this uses a non-volatile E2 data logger to
 |*| maintain a recording of events that have taken place
-|*| @Note: max size: 500 pages (64000b | 128B/page)
+|*| @Note: max size: 512 pages (65536B | 128B/page), I want each log to be exactly 32B long (1999 entries + 1 reserved for address count)
+|*| @Note: data entry exapmle: "dd/mm/yy,hh:mm:ss,tt,aaa,ddd\n"
 \*/
 
 #ifndef LOGDATA_H
@@ -12,23 +13,29 @@
 
 #include "kernel.h"
 
-#define E2_BASE_ADDR 0x0
-#define E2_END_ADDR 0xFA00
+typedef const char c_char;
+typedef unsigned char u_char;
 
-#define TO_MSB_LSB_FROM(n) (n >> 8) & 0xFF, n & 0x0FF
+#define E2_END_ADDR 0xFFFF
 
 class LogData
 {
   uint8_t IIC_ADDR_E2;
-  uint8_t sizeof_cchp(const char *_pch);
+  const uint16_t L_ADDR = 0xFF80;
+
+  int get_addr();
+  void upd_addr();
 
 public:
-  LogData(uint8_t _port_addr = 0); // init slave eeprom's address //doesnt have unique value check (may crush on the bus);
+  LogData(uint8_t _port_addr = 0);
   ~LogData(){};
 
-  int Write(uint16_t _addr, const char *_data);
+  int Write_32B(c_char *_data);
+  int Write_128B(int _pg, c_char *_data, int _devlock = 0);
 
-  int Read(uint16_t _addr);
+  int ReadPage(int _pg);
+  int ReadFT(int _saddr, int _eaddr, int _pagesize = 128, int _devlock = 0);
+  int ReadAll();
 };
 
 #endif // LOGDATA_H
